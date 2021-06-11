@@ -461,7 +461,8 @@ public class BoardController {
 	public ResponseEntity write3(BoardVO_third article, RedirectAttributes ra, SearchVO searchvo,
 			MultipartHttpServletRequest multipartRequest, HttpServletResponse response, HttpServletRequest request) throws Exception {
 
-		//대박....
+		
+		//저장3
 		String imageFileName=null;
 	
 		Map articleMap = new HashMap();
@@ -604,15 +605,16 @@ public class BoardController {
 	public ResponseEntity modify3(BoardVO_third article, RedirectAttributes ra, SearchVO searchvo,
 			MultipartHttpServletRequest multipartRequest, HttpServletResponse response ,  HttpServletRequest request) throws Exception {
 
-		   String imageFileName = null;
+		   	  String imageFileName = null;
 		   
-			
 			  multipartRequest.setCharacterEncoding("utf-8");
 			  Map<String,Object> articleMap = new HashMap<String, Object>();
 		   
 		int vo_num = article.getBoardNo();
 		
-		List<ImageVO> imageFileNOList = service.selectImageFileNO(vo_num); 
+		
+
+
 
 			//<input class="GUBUNCLASS" type="hidden" name="GUBUN" value="1">의 value값들이 index순서대로 여기로 들어온다.
 			String [] GUBUN = request.getParameterValues("GUBUN");
@@ -644,15 +646,64 @@ public class BoardController {
 				articleMap.put(name,value); 
 			}
 			
+			
+			/////////////////////////////////////
+			/// 새로이 첨부파일 추가
+			
+			
+			int a = 0;
+			String [] new_file = request.getParameterValues("new_file");
+			
+			int[] new_file1 = Arrays.stream(new_file).mapToInt(Integer::parseInt).toArray();
+			
+			List<String> new_add_fileList = multiupload(multipartRequest);
+			//새로저장3
+	
+				if(new_add_fileList!= null && new_add_fileList.size ()!=0) {
+					for(String fileName : new_add_fileList) { 
+						if(new_file1[a] == 1) {
+						ImageVO imageVO = new ImageVO(); 
+							imageVO.setImageFileName(fileName);
+							
+							System.out.println("fileName" + fileName);
+							//imageFileList.add(imageVO);
+					}
+						a++;
+					}
+				}
+				
+				
+				
+		
+			
+			////////////////////////////////////////////
+			
 			Integer imgNum = service.selectNewImageFileNO3();
 			
 			// origin file name list
 			String[] originFileNames = request.getParameterValues("originalFileName");
 			
-			List<String> fileList = multiupload(multipartRequest);
+
+			/*
+			 * 여기에 $("#d_file2").append("<br>"+"<input type='file' name='new_file"+cnt+"' />");
+			 * 이면 이 파일들에 대해서만 파일업로드 메서드를 타도록하면 된다.
+			 * 
+			 */
+			
+			
 			
 			//길이에 상관없이 배열이 늘어난다.
+			
+			
+			
+			List<String> fileList = multiupload(multipartRequest);
+		
 			List<ImageVO> imageFileList = new ArrayList<ImageVO>();
+			
+			/*  imageFileNOList :
+			 *  SELECT imageFileNO from t_imageFile
+		       where board_no=#{boardNo} */	
+			List<ImageVO> imageFileNOList = service.selectImageFileNO(vo_num); 
 			
 			if(fileList != null  && fileList.size() != 0) {
 				
@@ -666,7 +717,8 @@ public class BoardController {
 					imageVO.setBoardNo(vo_num);	
 					
 					if(imageFileNOList != null && imageFileNOList.size() !=0) {
-						
+									
+						//파일추가된 데이터는 imageFileList에서 getImageFileNO()할게 없으니 에러가뜬다.
 						imageVO.setImageFileNO(imageFileNOList.get(i).getImageFileNO());
 					} else {
 						imageVO.setImageFileNO(imgNum);
@@ -1468,5 +1520,78 @@ public class BoardController {
 		}
 		return fileList;
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	
+	
+	//다중 이미지 업로드하기
+		private List<String> multiupload2(MultipartHttpServletRequest multipartRequest, HttpServletRequest request) throws Exception{
+			List<String> fileList= new ArrayList<String>();
+			
+		    String add_file = request.getParameter("new_file");
+			//String NEWFILE	= request.getParameter("NEWFILE");
+			//System.out.println("NEWFILE 이다" + NEWFILE);
+			int add_file1 = Integer.parseInt(add_file);
+
+			
+
+			if(add_file1 == 1 && add_file1 != 0) {
+		
+			//parameter file type의 name="file"인 객체들을 받는 반복자를 생성한다.
+			Iterator<String> fileNames = multipartRequest.getFileNames();
+			//hasnext(): Returns true if the iteration has more elements: 반복자에 요소가 있다면 계속 반환한다.
+			while(fileNames.hasNext()){ 
+				//next(): 반복자의 다음요소를 순차적으로 반환한다.
+				//fileName =  fileName = "file1"이 담겼다.
+				String fileName = fileNames.next();
+				
+				//getFile(): 업로드된 파일 객체들을 리턴한다. Return the contents plus description of an uploaded file in this request,or null if it does not exist.			
+				//getFile(): 최초 구동될때, fileName ="file1"을 리턴했다.
+				MultipartFile mFile = multipartRequest.getFile(fileName);
+				//getOriginalFilename():클라이언트환경에서 그 파일 객체 가지는 원래 이름을 리턴한다. Return the original filename in the client's filesystem. 
+				//ex) 파일이름이 "사업자등록증"이면 비로소 여기에서 원래 이름이 담기기 시작한다.
+				String originalFileName=mFile.getOriginalFilename();
+				
+				//최초 구동시: 사업자등록증.jpg가 List에 담기기 시작한다.
+				
+			
+				fileList.add(originalFileName); 
+			
+				//fileName =  fileName = "file1"이 담겼다.
+				File file = new File(ARTICLE_IMAGE_REPO +File.separator+ fileName);
+				
+				if(mFile.getSize()!=0){ 
+					//exists(): 파일 경로가 존재하는지 안하는지 검사한다. Tests whether the file or directory denoted by this abstract pathnameexists.
+					if(! file.exists()){ //파일경로가 존재하지 않으면
+						//getParentFile(): Returns the abstract pathname of this abstract pathname's parent, 
+						//getParentFile(): ARTICLE_IMAGE_REPO +File.separator+ fileName의 경로를 리턴한다.
+						//mkdirs():그 디렉토리를 생성한다. Creates the directory named by this abstract pathname:
+						//mkdirs():Returns:true if and only if the directory was created,along with all necessary parent directories;
+						if(file.getParentFile().mkdirs()){ 
+								//createNewFile(): Atomically creates a new, empty file named by this abstract pathname 
+								file.createNewFile(); 
+						}
+					}
+					//여기서 temp폴더에 monkey가 저장이 된것을 확인할 수 있었다.
+					//transferTo: 수신된 파일들을 temp 경로로 옮긴다.
+					mFile.transferTo(new File(ARTICLE_IMAGE_REPO +File.separator+"temp"+ File.separator+originalFileName));  
+				}
+			}
+			}
+			return fileList;
+		}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	
 }

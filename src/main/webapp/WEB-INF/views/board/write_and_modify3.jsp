@@ -233,8 +233,9 @@ margin 5px 7px 3px 0px; (위, 오른쪽, 아래, 왼쪽 순)
 			  
 			  <tr>
 			    <td>  
-			    <!--  파일선택 -->
+			    <!-- 기존 파일선택 -->
 			       <input class="selectimage" type="file"  name="file" id="i_imageFileName" onchange="readURL(this, '${aa}');" />
+			     <input class="new_file_GUBUN" type="hidden" name="new_file" value="1" />
 			    </td>	
 			 </tr>
 			 
@@ -244,14 +245,26 @@ margin 5px 7px 3px 0px; (위, 오른쪽, 아래, 왼쪽 순)
 			 <tr>
 			  <c:if test="${status.last}">
 			 <td style="text-align: center">파일추가</td>
-			  <td> <input type="button" id="file_route_modify" name="file_route" value="파일추가" onClick="fn_addFile_modify()"/>	</td>
+			
+			  <td> <input type="button" class="add_fileimage" id="file_route_modify" name="file_route" value="파일추가" onClick="fn_addFile_modify()"/>	
+			  
+			     <input class="new_file_GUBUN" type="hidden" name="new_file" value="1" />
+			  </td>
+			
 			 </c:if>
 			 </tr>
 			
 			</c:forEach>
 			
 			 	<tr> <!-- tr이 빠지면 옆으로 갈라진다?? -->
-			     <td colspan="4"><div id="d_file2" name="All_file"></div></td>
+			 	
+			     <td colspan="4">
+			     <div class="new_file_div_GUBUN" id="d_file2" name="All_file">
+			    <!--  $("#d_file2").append("<br>"+"<input type='file' name='NEWFILE" +cnt+"' />"); 추가됨. -->
+			     <input class="new_file_GUBUN" type="hidden" name="new_file" value="1" />
+			     </div>		
+			     </td>
+
 		   	  </tr>
 			</c:when>
 					
@@ -267,10 +280,11 @@ margin 5px 7px 3px 0px; (위, 오른쪽, 아래, 왼쪽 순)
 						
 						 <input type="button" id="file_route" name="file_route" value="파일추가" onClick="fn_addFile()"/>
 					
+					
 						</div>
 						</td>	
 						</tr>
-						
+	      				
 						<tr>
 	      				<td colspan="4"><div id="d_file" name="All_file"></div></td>
 	  					 </tr>
@@ -318,12 +332,43 @@ function fn_addFile(){
 }  
 
 function fn_addFile_modify() {
-$("#d_file2").append("<br>"+"<input type='file' name='file"+cnt+"' />");
+$("#d_file2").append("<br>"+"<input type='file' name='NEWFILE" +cnt+"' />");
 cnt++;
 }
 
 //제이쿼리 시작
 $(function() {
+	
+	//파일추가 버튼을 눌렀을시
+	$(".add_fileimage").click(function() {
+		
+	
+		$(this).closest("td").find(".new_file_GUBUN").val(1);
+		
+		
+	});
+	
+	//기존파일이 있는 파일선택을 눌렀을시
+	$(".selectimage").click(function() {
+		
+		$(this).closest("td").find(".new_file_GUBUN").val(0);
+		
+		
+	});
+	
+	//기존엔 없다가 생성된 DOM이라면 document를 해야한다.
+	$(document).on("change", "input[name=NEWFILE1]", function(){
+
+		alert('ㅇㅇ');	
+		
+		$(this).closest("td").find(".new_file_GUBUN").val(1);
+	});
+	
+	
+	//제이쿼리 change 이벤트의 경우 셀렉터를 정하여 해당 셀렉터의 값이 변할경우 변화를 캐치하는 이벤트입니다.
+	
+	
+	
 		
 	$(".span_tag_removeimgclass").click(function() {
 		
@@ -368,7 +413,6 @@ $(function() {
 	
 	$("#file_route_modify").click(function() {
 		
-		//model로 전달된 value값을 1로 변경한 후에 board/write3으로 보냄
 		  $("#A").val("2"); 
 
 	});

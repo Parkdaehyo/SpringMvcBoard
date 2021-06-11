@@ -193,22 +193,10 @@ left:1250px;
 <br>
 <br>
 
-	<%-- <colgroup>
-						<col style="width:12%;" /><col style="width:auto;" /><col style="width:12%;" /><col style="width:38%;" />
-					</colgroup> --%>
-
 					<table align="center">
 				
 						<tbody>
 						
-				<%-- 	   <c:forEach var="image" items="${imageFileList}"> 
-						 <input type="hidden" name="imageFileNO" value="${image.imageFileNO}" />
-						 <input type="hidden" name="imageFileNO1" value="${image.imageFileNO}" />
-						 <input type="hidden" name="imageFileNO2" value="${image.imageFileNO}" />
-						 	
-						 	 	 	 	 	 	 
-						</c:forEach>
-						 --%>
  						
 						<tr>
 							<td scope="row"  align="center">제목</td>
@@ -229,13 +217,9 @@ left:1250px;
 		 <c:if test="${not empty imageFileList && imageFileList!='null' }">
                  <!-- 밖에다 써야함. -->
                  
-                 
-                 
                 <div id="num">
 			   <c:set var="count" value="0"/>
 			   </div>
-			   
-			   
 			   
 	 		 <c:forEach var="item" items="${imageFileList}" varStatus="status" >
 		    <tr>
@@ -330,28 +314,7 @@ left:1250px;
 
 //제이쿼리 시작
 $(function() {
-	//var count = 0;
-/* 	 var dd = $(".dd");
-	 
-	 var count = 2;
-
-const formimagedown = $("#formimagedown");
-const formimagedown2 = $(".fi");
 	
-	$(".imagedown").click(function() {
-		
-		$("formimagedown").attr({
-			
-			"action" : "${contextPath}/download.do?boardNo=${article.boardNo}&imageFileName=${item.imageFileName}" 
-					
-		});
-		
-		formimagedown.submit();		
-		
-		
-	}); 
-	
-	 */
 	$("#list-btn").click(function() {
 	
 		console.log("목록 버튼이 클릭됨");
