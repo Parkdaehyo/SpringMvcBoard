@@ -287,6 +287,12 @@ margin 5px 7px 3px 0px; (위, 오른쪽, 아래, 왼쪽 순)
 	      				
 						<tr>
 	      				<td colspan="4"><div id="d_file" name="All_file"></div></td>
+	      				<!--  여기에 글쓰기 할때 생성됨 -->
+	      				<!-- 만일  
+	      				파일추가가 되지 않았다면, 그 요소를 삭제한다
+	      				-->
+	      				
+	      				
 	  					 </tr>
 	  					 
 							<input type="hidden" id="A" name="aaa" value="${A}" />
@@ -332,7 +338,7 @@ function fn_addFile(){
 }  
 
 function fn_addFile_modify() {
-$("#d_file2").append("<br>"+"<input type='file' name='NEWFILE" +cnt+"' />");
+$("#d_file2").append("<br>"+"<input class='addnewfile' type='file' name='NEWFILE" +cnt+"' />");
 cnt++;
 }
 
@@ -357,12 +363,18 @@ $(function() {
 	});
 	
 	//기존엔 없다가 생성된 DOM이라면 document를 해야한다.
-	$(document).on("change", "input[name=NEWFILE1]", function(){
+	//input[name=NEWFILE1] -- name으로 접근하기
+	//input.addnewfile -- class로 접근하기
+	$(document).on("change", $("input.addnewfile"), function(){
 
-		alert('ㅇㅇ');	
+		//alert('ㅇㅇ');	
 		
 		$(this).closest("td").find(".new_file_GUBUN").val(1);
+		
 	});
+	
+	
+	//파일선택을 눌렀는데 파일을 업로드하지 않으면 그 요소를 제거	
 	
 	
 	//제이쿼리 change 이벤트의 경우 셀렉터를 정하여 해당 셀렉터의 값이 변할경우 변화를 캐치하는 이벤트입니다.

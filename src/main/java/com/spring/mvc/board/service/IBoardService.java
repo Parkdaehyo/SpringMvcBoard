@@ -23,6 +23,11 @@ public interface IBoardService {
 			/////////////////////////////////////////////////////////////////////////////////////
 	
 			public int addNewArticle3(Map articleMap) throws Exception;
+			
+			public void InModify_addImage(Map articleMap) throws DataAccessException;
+			//수정하면서 이미지 추가하기
+			
+			
 			//글쓰기
 			public int insertNewArticle3(Map articleMap) throws DataAccessException;
 			//void insert(BoardVO aritcle);

@@ -73,6 +73,29 @@
 	</insert> 
 	
 	
+	<insert id="add_insertNewImage3" parameterType="java.util.Map"> 
+
+	insert into t_imageFile(
+	
+	imageFileNO,
+	imageFileName,
+	board_no
+
+	
+
+	)values
+	<foreach item="item" collection="InModify_add_imageFileList" separator=","> 
+
+	( #{item.imageFileNO}, 
+	  #{item.imageFileName},
+	  #{item.boardNo}
+     
+     
+	)
+	</foreach> 
+	 
+	</insert> 
+	
 	
 
 	<update id="updateArticle3" parameterType="java.util.Map">

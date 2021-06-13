@@ -518,6 +518,8 @@ public class BoardController {
 			articleMap.put("imageFileList", imageFileList);
 			articleMap.put("boardNo", boardNo_map);
 			
+			
+			
 		}
 		
 		
@@ -609,13 +611,12 @@ public class BoardController {
 		   
 			  multipartRequest.setCharacterEncoding("utf-8");
 			  Map<String,Object> articleMap = new HashMap<String, Object>();
+			  
+	
 		   
-		int vo_num = article.getBoardNo();
+			  int vo_num = article.getBoardNo();
 		
-		
-
-
-
+	
 			//<input class="GUBUNCLASS" type="hidden" name="GUBUN" value="1">의 value값들이 index순서대로 여기로 들어온다.
 			String [] GUBUN = request.getParameterValues("GUBUN");
 			
@@ -646,38 +647,60 @@ public class BoardController {
 				articleMap.put(name,value); 
 			}
 			
+			String boardNo_map = (String) articleMap.get("boardNo");
 			
 			/////////////////////////////////////
 			/// 새로이 첨부파일 추가
 			
+			Map<String,Object> add_image_articleMap = new HashMap<String, Object>();
 			
+			//수정33
 			int a = 0;
 			String [] new_file = request.getParameterValues("new_file");
 			
 			int[] new_file1 = Arrays.stream(new_file).mapToInt(Integer::parseInt).toArray();
 			
+			//업로드된 파일을 가져온다.
 			List<String> new_add_fileList = multiupload(multipartRequest);
 			//새로저장3
-	
+		
+			List<ImageVO> InModify_add_imageFileList = new ArrayList<ImageVO>();
+					
+				  //업로드된 파일
 				if(new_add_fileList!= null && new_add_fileList.size ()!=0) {
+					
+					//Map articleMap = new HashMap();
 					for(String fileName : new_add_fileList) { 
-						if(new_file1[a] == 1) {
+					
+						if(new_file1[a] == 1 && fileName != "") {
 						ImageVO imageVO = new ImageVO(); 
+						
 							imageVO.setImageFileName(fileName);
 							
 							System.out.println("fileName" + fileName);
-							//imageFileList.add(imageVO);
+							InModify_add_imageFileList.add(imageVO);
+							if(fileName == "") {
+								new_add_fileList.removeAll(InModify_add_imageFileList);
+							}
 					}
 						a++;
+					
 					}
+					
+					add_image_articleMap.put("InModify_add_imageFileList", InModify_add_imageFileList);
+					add_image_articleMap.put("boardNo", vo_num);
+					
+					
+					service.InModify_addImage(add_image_articleMap);
 				}
 				
 				
-				
-		
+			
 			
 			////////////////////////////////////////////
 			
+				
+				
 			Integer imgNum = service.selectNewImageFileNO3();
 			
 			// origin file name list
@@ -710,7 +733,7 @@ public class BoardController {
 				int i =0;
 				//fileList에서 하나씩 fileName에 담고있다.
 				for(String fileName : fileList) { 
-					
+					if(new_file1[i] == 0) {
 					ImageVO imageVO = new ImageVO();
 					//tiger가 한번 저장이 된 이후에 panda가 다시 셋팅되기 시작한다. 둘다 동시에 저장이 되는 것이 아니다.
 					imageVO.setImageFileName(fileName); 
@@ -730,6 +753,7 @@ public class BoardController {
 					}
 					
 					imageFileList.add(imageVO);
+					}
 					i++;
 				}
 			}
@@ -752,9 +776,25 @@ public class BoardController {
 			
 			int count = 0;
 			
+			//int k = 0;
+			if(InModify_add_imageFileList!=null && InModify_add_imageFileList.size()!=0) { // imageFileList에 데이터가 있다면
+			
+				for(ImageVO imageVO2:InModify_add_imageFileList) {
+					//if(new_file1[k] == 1) {
+					imageFileName = imageVO2.getImageFileName(); 
+					File srcFile = new File(ARTICLE_IMAGE_REPO+File.separator+"temp"+File.separator+imageFileName); //temp 폴더에 위치한 imageFile 들을 경로 셋팅.
+					File destDir = new File(ARTICLE_IMAGE_REPO+File.separator+boardNo_map);
+					FileUtils.moveFileToDirectory(srcFile, destDir,true); // moveFileToDirectory: 글번호 폴더로 폴더를 이동시킨다.
+				}
+					//k++;
+				}
+			//}
+			
 				
+				int c = 0;
 				if(imageFileList != null && imageFileList.size()!=0) {
 				for(ImageVO imageVO : imageFileList) { //박지성,나니가 32번으로 옮겨갔다
+					if(new_file1[c] == 0) {
 					
 					if(imageVO.getImageFileName() != null) {
 					imageFileName = imageVO.getImageFileName();
@@ -771,10 +811,11 @@ public class BoardController {
 					File oldFile = new File(ARTICLE_IMAGE_REPO+File.separator+vo_num+File.separator+ imageVO.getOriginImageFileName());
 			   		oldFile.delete();
 			   		count++;
-				}
+				} 
 				
 				}
-				
+					c++;
+					}
 				}
 			
 			message = "<script>";
@@ -1478,25 +1519,35 @@ public class BoardController {
 	
 	
 	//다중 이미지 업로드하기
+	//업로드3
 	private List<String> multiupload(MultipartHttpServletRequest multipartRequest) throws Exception{
 		List<String> fileList= new ArrayList<String>();
 		//parameter file type의 name="file"인 객체들을 받는 반복자를 생성한다.
 		Iterator<String> fileNames = multipartRequest.getFileNames();
 		//hasnext(): Returns true if the iteration has more elements: 반복자에 요소가 있다면 계속 반환한다.
-		while(fileNames.hasNext()){ 
+		
+		while(fileNames.hasNext()){
+		
 			//next(): 반복자의 다음요소를 순차적으로 반환한다.
 			//fileName =  fileName = "file1"이 담겼다.
 			String fileName = fileNames.next();
-			
 			//getFile(): 업로드된 파일 객체들을 리턴한다. Return the contents plus description of an uploaded file in this request,or null if it does not exist.			
+			
 			//getFile(): 최초 구동될때, fileName ="file1"을 리턴했다.
 			MultipartFile mFile = multipartRequest.getFile(fileName);
 			//getOriginalFilename():클라이언트환경에서 그 파일 객체 가지는 원래 이름을 리턴한다. Return the original filename in the client's filesystem. 
 			//ex) 파일이름이 "사업자등록증"이면 비로소 여기에서 원래 이름이 담기기 시작한다.
-			String originalFileName=mFile.getOriginalFilename();
-			
+		
+				String originalFileName=mFile.getOriginalFilename();
+//				if(originalFileName == "") {
+//					return fileList;
+//				}
 			//최초 구동시: 사업자등록증.jpg가 List에 담기기 시작한다.
 			fileList.add(originalFileName); 
+//			if(fileList.contains("")) {
+//				//removeAll: Removes from this list all of its elements that are contained in the specified collection 
+//				fileList.removeAll(fileList);
+//			}
 			
 			//fileName =  fileName = "file1"이 담겼다.
 			File file = new File(ARTICLE_IMAGE_REPO +File.separator+ fileName);
@@ -1517,9 +1568,13 @@ public class BoardController {
 				//transferTo: 수신된 파일들을 temp 경로로 옮긴다.
 				mFile.transferTo(new File(ARTICLE_IMAGE_REPO +File.separator+"temp"+ File.separator+originalFileName));  
 			}
+		
+		
+		
 		}
 		return fileList;
 	}
+	
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	

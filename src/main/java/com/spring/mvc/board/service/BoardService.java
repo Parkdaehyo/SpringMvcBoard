@@ -268,6 +268,43 @@ public class BoardService implements IBoardService {
 	//다중 첨부파일
 	//////////////////////////////////////////////////////////////////////////////////////////
 	
+	
+	@Override
+	public void InModify_addImage(Map add_image_articleMap) throws DataAccessException {
+		
+		int boardNo_map = Integer.parseInt(add_image_articleMap.get("boardNo").toString());
+		
+		System.out.println("현재 이 글번호: " + boardNo_map);
+		//수정3
+		// 여기에 저장로직을	
+		//InModify_add_imageFileList 이렇게 바꿔주니까 됬다?????
+		List<ImageVO> InModify_add_imageFileList = (ArrayList<ImageVO>)add_image_articleMap.get("InModify_add_imageFileList");
+		
+		System.out.println("boarservice3의 add_image_articleMap" + add_image_articleMap);
+		
+		//SELECT IFNULL(MAX(imageFileNO) ,0) + 1 from t_imageFile;	
+		int imageFileNO = selectNewImageFileNO3(); //MAX값 가져오는것.
+		//int new_boardNo = Integer.parseInt(articleMap.get("boardNo").toString());
+		
+		//imageFileList로 하여금 새로이 imageVO를 설정해주는것 이것은 코드 280에 영향을 끼친다.
+		
+		for(ImageVO imageVO : InModify_add_imageFileList){
+			//최초로 imageFileNO가 256이 들어간 이후에 코드가 실행된 이후 곧바로 257이 된다.
+			imageVO.setImageFileNO(++imageFileNO); 
+			imageVO.setBoardNo(boardNo_map); 
+			
+			System.out.println("파일 이름:" + imageVO.getImageFileName());
+		}
+				
+		//boardNo = 151, 
+		if(InModify_add_imageFileList != null && InModify_add_imageFileList.size() != 0) {
+		mapper3.add_insertNewImage3(add_image_articleMap);
+		
+		}
+	}
+
+	
+	
 	@Override
 	public int insertNewArticle3(Map articleMap) throws DataAccessException {
 		
@@ -431,10 +468,13 @@ public class BoardService implements IBoardService {
 		return mapper3.selectNewArticleNO3();
 	}
 
+	
+	
+	
 	@Override //insertNewAritlce로직을 다실행해야한다.
 	public int addNewArticle3(Map articleMap) throws Exception{
 		
-		
+		//저장3
 		//selectNewArticleNO3(): SELECT  IFNULL(MAX(board_no), 0) + 1 from new_board3
 		int boardNo = mapper3.selectNewArticleNO3();
 		

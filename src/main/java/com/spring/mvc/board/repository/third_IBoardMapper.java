@@ -39,11 +39,16 @@ public interface third_IBoardMapper {
 		List<BoardVO_third> getArticleList3(SearchVO search);
 		
 		
+		public void InModify_addImage(Map articleMap) throws DataAccessException;
+		
+		
 		Integer countArticles3(SearchVO search);
 		
 		Integer viewCount3(int boardNo);
 		
 		int selectNewArticleNO3();
+		
+		public void add_insertNewImage3(Map articleMap) throws DataAccessException;
 	
 		public int insertNewImage3(Map articleMap) throws DataAccessException;
 		
